@@ -1,5 +1,14 @@
 #include <SPI.h>
 #include <LoRa.h>
+#include "LoRandom.h"
+
+void writeRegister(uint8_t reg, uint8_t value) {
+  LoRa.writeRegister(reg, value);
+}
+
+uint8_t readRegister(uint8_t reg) {
+  return LoRa.readRegister(reg);
+}
 
 void hexDump(unsigned char *buf, uint16_t len) {
   String s = "|", t = "| |";
@@ -45,12 +54,7 @@ void setup() {
   digitalWrite(RFM_SWITCH, 1);
   LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN);
   LoRa.setPreambleLength(8);
-  LoRa.writeRegister(0x01, 0b10001101);
-  LoRa.writeRegister(0x1D, 0b01110010);
-  LoRa.writeRegister(0x1E, 0b01110000);
-  //  LoRa.setSpreadingFactor(7);
-  //  LoRa.setSignalBandwidth(125E3);
-  //  LoRa.setCodingRate4(5);
+  setupLoRandom();
   Serial.println("[o]");
   delay(1000);
   pinMode(PIN_PA28, OUTPUT);
@@ -86,22 +90,16 @@ void setup() {
   at the receiver input and the LSB of this value constantly and randomly changes.
 */
 
-#define RegRssiWideband 0x2C
-
 void loop() {
-  unsigned char buff[256];
-  uint16_t i, j;
+  unsigned char randomStock[256];
+  // We'll build a stock of random bytes for use in code
+  uint8_t randomIndex = 0;
+  uint16_t i;
   for (i = 0; i < 256; i++) {
-    uint8_t x = 0;
-    for (j = 0; j < 8; j++) {
-      x += (LoRa.readRegister(RegRssiWideband) & 0b00000001);
-      x = x << 1;
-      delay(10);
-    }
-    buff[i] = x;
+    uint8_t x = getLoRandomByte();
+    randomStock[i] = x;
   }
-  Serial.write('\n');
-  hexDump(buff, 256);
-  Serial.write('\n');
+  randomIndex = 0;
+  hexDump(randomStock, 256);
   delay(2000);
 }
