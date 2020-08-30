@@ -12,3 +12,5 @@ In this version the LoRa-based RNG code is in the LoRandom.h header file, and ca
 You need to call `void setupLoRandom()` at startup, and `uint8_t getLoRandomByte()` when you need a random byte. This code creates a stock of 256 bytes at startup to make things easier. Remember you need to reset LoRa settings when you need RNG...
 
 This code is used in [BastWAN DHKE](https://github.com/Kongduino/BastWAN_DHKE) to provide random numbers for the public and private keys.
+
+![Blocks](Blocks.png)
